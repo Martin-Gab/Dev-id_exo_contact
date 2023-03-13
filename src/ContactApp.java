@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class ContactApp {
 
@@ -14,7 +11,10 @@ public class ContactApp {
     final int MAINMENU = 0;
     final int ADDMENU = 1;
     final int SEARCHMENU = 2;
-    final int DISPLAYMENU = 3;
+    final int SHOWMENU = 3;
+    final int SHOWSUBMENU = 4;
+    final String ASCENDING = "ascending";
+    final String DESCENDING = "descending";
 
     public ContactApp() {
 
@@ -102,16 +102,56 @@ public class ContactApp {
 
     }
 
+    private void displayShowContactsSection() {
+
+        if (contactList.isEmpty())
+            System.out.println(" => Il n'y a aucun contact à afficher !");
+        else {
+            System.out.println(
+                    "---------------------------------------\n"
+                    + " Liste des contacts\n"
+                    + "---------------------------------------\n"
+            );
+            displayShowContactsMenu();
+        }
+
+    }
+
+    private void displayShowContactsMenu() {
+
+        currentMenu = SHOWMENU;
+        System.out.println(
+                " 1 -> Par ordre croissant\n"
+                + " 2 -> Par ordre décroissant\n"
+                + ":"
+        );
+        retrieveUserInputForMenu();
+
+    }
+
+    private void displayShowContactsSubMenu() {
+
+        currentMenu = SHOWSUBMENU;
+        System.out.println(
+                " 3 -> Lister les contacts à nouveau\n"
+                + " 4 -> Retour au menu principal\n"
+                + ":"
+        );
+        retrieveUserInputForMenu();
+
+    }
+
     private void retrieveUserInputForMenu() {
 
-        try {
-            int userChoice = sc.nextInt();
-            sc.nextLine();
-            handleUserChoiceForMenus(userChoice);
-        } catch (InputMismatchException ime) {
-            System.out.println("Veuillez renseigner un chiffre !");
-            displayMainMenu();
-        }
+        String userChoiceStr = "";
+
+        do {
+            if (!userChoiceStr.isEmpty())
+                System.out.println("Veuillez renseigner un chiffre :");
+            userChoiceStr = sc.nextLine();
+        } while (!userChoiceStr.matches("\\d+"));
+
+        handleUserChoiceForMenus(Integer.parseInt(userChoiceStr));
 
     }
 
@@ -126,6 +166,8 @@ public class ContactApp {
                     retrieveNewContactInfos();
                 else if (currentMenu == SEARCHMENU)
                     retrieveInputForContactSearch();
+                else if (currentMenu == SHOWMENU)
+                    sortContacts(ASCENDING);
                 break;
 
             case 2:
@@ -135,19 +177,22 @@ public class ContactApp {
                     currentMenu = MAINMENU;
                 else if (currentMenu == SEARCHMENU)
                     currentMenu = MAINMENU;
+                else if (currentMenu == SHOWMENU)
+                    sortContacts(DESCENDING);
                 break;
 
             case 3:
-                System.out.println("Afficher");
+                if (currentMenu == MAINMENU)
+                    displayShowContactsSection();
+                else if (currentMenu == SHOWSUBMENU)
+                    displayShowContactsMenu();
                 break;
 
             case 4:
-                isRunning = false;
-                break;
-
-            default:
-                System.out.println("Veuillez renseigner un chiffre entre 1 et 4");
-                displayMainMenu();
+                if (currentMenu == MAINMENU)
+                    isRunning = false;
+                else if (currentMenu == SHOWSUBMENU)
+                    currentMenu = MAINMENU;
                 break;
 
         }
@@ -156,14 +201,39 @@ public class ContactApp {
 
     private void retrieveNewContactInfos() {
 
-        System.out.println("Entrez son nom :");
-        String lastname = sc.nextLine();
+        String lastname = "";
+        String firstname = "";
+        String phoneNumber = "";
 
-        System.out.println("Entrez son prénom :");
-        String firstname = sc.nextLine();
+        do {
 
-        System.out.println("Entrez son numéro de téléphone :");
-        String phoneNumber = sc.nextLine();
+            if (!lastname.isEmpty())
+                System.out.println("Veuillez saisir uniquement des lettres ! Réessayez");
+
+            System.out.println("Entrez son nom :");
+            lastname = sc.nextLine();
+
+        } while (!lastname.trim().matches("[a-zA-Z]+"));
+
+        do {
+
+            if (!firstname.isEmpty())
+                System.out.println("Veuillez saisir uniquement des lettres ! Réessayez");
+
+            System.out.println("Entrez son prénom :");
+            firstname = sc.nextLine();
+
+        } while (!firstname.trim().matches("[a-zA-Z]+"));
+
+        do {
+
+            if (!phoneNumber.isEmpty())
+                System.out.println("Veuillez saisir uniquement des numéros ! Réessayez");
+
+            System.out.println("Entrez son numéro de téléphone :");
+            phoneNumber = sc.nextLine();
+
+        } while (!phoneNumber.trim().matches("[0-9]+"));
 
         createNewContactAndAddToList(lastname, firstname, phoneNumber);
 
@@ -205,6 +275,26 @@ public class ContactApp {
 
     }
 
+    private void sortContacts(String direction) {
+
+        List <Contact> sortedContacts = new ArrayList<>();
+
+        if (direction == ASCENDING)
+            contactList
+                    .stream()
+                    .sorted((c1, c2) -> c1.getLastname().compareTo(c2.getLastname()))
+                    .forEach(contact -> sortedContacts.add(contact));
+        else if (direction == DESCENDING)
+            contactList
+                    .stream()
+                    .sorted((c1, c2) -> c2.getLastname().compareTo(c1.getLastname()))
+                    .forEach(contact -> sortedContacts.add(contact));
+
+        printList(sortedContacts);
+        displayShowContactsSubMenu();
+
+    }
+
     private void printList(List<Contact> contactsToPrint) {
 
         for (Contact c : contactsToPrint)
@@ -218,6 +308,7 @@ public class ContactApp {
                     .append("\n");
 
         System.out.println(printContactList);
+        printContactList.setLength(0);
 
     }
 
