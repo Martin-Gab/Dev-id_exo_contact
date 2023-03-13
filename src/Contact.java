@@ -5,7 +5,7 @@ public class Contact {
     public Contact(String lastname, String firstname, String phoneNumber) {
 
         this.lastname = lastname.toUpperCase();
-        this.firstname = firstname.substring(0,1).toUpperCase() + firstname.substring(1);
+        this.firstname = firstname.substring(0,1).toUpperCase() + firstname.substring(1).toLowerCase();
         this.phoneNumber = phoneNumber;
 
     }

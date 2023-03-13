@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 public class ContactApp {
 
-    String print;
+    StringBuilder printContactList;
     boolean isRunning;
     List<Contact> contactList;
     Scanner sc;
@@ -18,19 +18,21 @@ public class ContactApp {
 
     public ContactApp() {
 
-        print = "***************************************\n"
-                + "***************************************\n"
-                + "***                                 ***\n"
-                + "***        APPLI CONTACTS           ***\n"
-                + "***                                 ***\n"
-                + "***************************************\n"
-                + "***************************************\n";
+        printContactList = new StringBuilder();
         isRunning = true;
         contactList = new ArrayList<>();
         sc = new Scanner(System.in);
         currentMenu = MAINMENU;
 
-        System.out.println(print);
+        System.out.println(
+                "***************************************\n"
+                + "***************************************\n"
+                + "***                                 ***\n"
+                + "***        APPLI CONTACTS           ***\n"
+                + "***                                 ***\n"
+                + "***************************************\n"
+                + "***************************************\n"
+        );
 
         do
             displayMainMenu();
@@ -42,26 +44,62 @@ public class ContactApp {
 
     private void displayMainMenu() {
 
-        print = "---------------------------------------\n"
+        System.out.println(
+                "---------------------------------------\n"
                 + " 1 -> Ajouter un contact\n"
                 + " 2 -> Rechercher un contact\n"
                 + " 3 -> Afficher tous les contacts\n"
                 + " 4 -> Quitter\n"
-                + ":";
-
-        System.out.println(print);
+                + ":"
+        );
 
         retrieveUserInputForMenu();
     }
 
-    private void displayCreateMenu() {
+    private void displayAddSection() {
+
+        System.out.println(
+                "---------------------------------------\n"
+                + " Ajouter un nouveau contact\n"
+        );
+        retrieveNewContactInfos();
+
+    }
+
+    private void displayAddMenu() {
+
         currentMenu = ADDMENU;
-        print = "---------------------------------------\n"
+        System.out.println(
+                "---------------------------------------\n"
                 + " 1 -> Entrez un nouveau contact\n"
                 + " 2 -> Retour au menu principal\n"
-                + ":";
-        System.out.println(print);
+                + ":"
+        );
         retrieveUserInputForMenu();
+
+    }
+
+    private void displaySearchSection() {
+
+        System.out.println(
+                "---------------------------------------\n"
+                + " Rechercher un contact\n"
+        );
+        retrieveInputForContactSearch();
+
+    }
+
+    private void displaySearchMenu() {
+
+        currentMenu = SEARCHMENU;
+        System.out.println(
+                "---------------------------------------\n"
+                + " 1 -> Rechercher un nouveau contact\n"
+                + " 2 -> Retour au menu principal\n"
+                + ":"
+        );
+        retrieveUserInputForMenu();
+
     }
 
     private void retrieveUserInputForMenu() {
@@ -71,8 +109,7 @@ public class ContactApp {
             sc.nextLine();
             handleUserChoiceForMenus(userChoice);
         } catch (InputMismatchException ime) {
-            print = "Veuillez renseigner un chiffre !";
-            System.out.println(print);
+            System.out.println("Veuillez renseigner un chiffre !");
             displayMainMenu();
         }
 
@@ -84,14 +121,20 @@ public class ContactApp {
 
             case 1:
                 if (currentMenu == MAINMENU)
-                    displayAddContactSection();
-                else if (currentMenu == ADDMENU) {
+                    displayAddSection();
+                else if (currentMenu == ADDMENU)
                     retrieveNewContactInfos();
-                }
+                else if (currentMenu == SEARCHMENU)
+                    retrieveInputForContactSearch();
                 break;
 
             case 2:
-                System.out.println("Rechercher");
+                if (currentMenu == MAINMENU)
+                    displaySearchSection();
+                else if (currentMenu == ADDMENU)
+                    currentMenu = MAINMENU;
+                else if (currentMenu == SEARCHMENU)
+                    currentMenu = MAINMENU;
                 break;
 
             case 3:
@@ -103,8 +146,7 @@ public class ContactApp {
                 break;
 
             default:
-                print = "Veuillez renseigner un chiffre entre 1 et 4";
-                System.out.println(print);
+                System.out.println("Veuillez renseigner un chiffre entre 1 et 4");
                 displayMainMenu();
                 break;
 
@@ -112,27 +154,15 @@ public class ContactApp {
 
     }
 
-    private void displayAddContactSection() {
-
-        print = "---------------------------------------\n"
-                + " Ajouter un nouveau contact\n";
-        System.out.println(print);
-        retrieveNewContactInfos();
-
-    }
-
     private void retrieveNewContactInfos() {
 
-        print = "Entrez son nom :";
-        System.out.println(print);
+        System.out.println("Entrez son nom :");
         String lastname = sc.nextLine();
 
-        print = "Entrez son prénom :";
-        System.out.println(print);
+        System.out.println("Entrez son prénom :");
         String firstname = sc.nextLine();
 
-        print = "Entrez son numéro de téléphone :";
-        System.out.println(print);
+        System.out.println("Entrez son numéro de téléphone :");
         String phoneNumber = sc.nextLine();
 
         createNewContactAndAddToList(lastname, firstname, phoneNumber);
@@ -142,9 +172,53 @@ public class ContactApp {
     private void createNewContactAndAddToList(String lastname, String firstname, String phoneNumber) {
 
         contactList.add(new Contact(lastname, firstname, phoneNumber));
-        displayCreateMenu();
+        displayAddMenu();
 
     }
 
+    private void retrieveInputForContactSearch() {
+
+        System.out.println("Entrez le nom ou le prénom du contact à rechercher :");
+        String searchStrToLowerCase = sc.nextLine().toLowerCase();
+        searchForContacts(searchStrToLowerCase);
+
+    }
+
+    private void searchForContacts(String searchStrToLowerCase) {
+
+        List<Contact> contactsFound = new ArrayList<>();
+
+        for (Contact c : contactList)
+            if (
+                c.getLastname().toLowerCase().contains(searchStrToLowerCase)
+                ||
+                c.getFirstname().toLowerCase().contains(searchStrToLowerCase)
+            )
+                contactsFound.add(c);
+
+        if (contactsFound.isEmpty())
+            System.out.println(" => Aucune correspondance trouvée ! (sur " + contactList.size() + " contacts(s))");
+        else
+            printList(contactsFound);
+
+        displaySearchMenu();
+
+    }
+
+    private void printList(List<Contact> contactsToPrint) {
+
+        for (Contact c : contactsToPrint)
+            printContactList
+                    .append(" -> ")
+                    .append(c.getFirstname())
+                    .append(" ")
+                    .append(c.getLastname())
+                    .append(" : ")
+                    .append(c.getPhoneNumber())
+                    .append("\n");
+
+        System.out.println(printContactList);
+
+    }
 
 }
