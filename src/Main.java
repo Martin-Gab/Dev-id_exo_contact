@@ -1,5 +1,6 @@
 public class Main {
     public static void main(String[] args) {
-        new ContactApp();
+        //new ContactApp();
+        new AppContact().launch();
     }
 }
