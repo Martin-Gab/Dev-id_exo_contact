@@ -2,19 +2,20 @@ import java.util.*;
 
 public class ContactApp {
 
-    StringBuilder printContactList;
-    boolean isRunning;
-    List<Contact> contactList;
-    Scanner sc;
-    int currentMenu;
+    private final int MAINMENU = 0;
+    private final int ADDMENU = 1;
+    private final int SEARCHMENU = 2;
+    private final int SHOWMENU = 3;
+    private final int SHOWSUBMENU = 4;
+    private final String ASCENDING = "ascending";
+    private final String DESCENDING = "descending";
 
-    final int MAINMENU = 0;
-    final int ADDMENU = 1;
-    final int SEARCHMENU = 2;
-    final int SHOWMENU = 3;
-    final int SHOWSUBMENU = 4;
-    final String ASCENDING = "ascending";
-    final String DESCENDING = "descending";
+    private StringBuilder printContactList;
+    private String userChoiceStr, lastnameFromUser, firstnameFromUser, phoneNumberFromUser;
+    private boolean isRunning;
+    private List<Contact> contactList;
+    private Scanner sc;
+    private int currentMenu;
 
     public ContactApp() {
 
@@ -54,7 +55,7 @@ public class ContactApp {
                 + ":"
         );
 
-        retrieveUserInputForMenu();
+        retrieveUserInputForMenus();
     }
 
     private void displayAddSection() {
@@ -76,7 +77,7 @@ public class ContactApp {
                 + " 2 -> Retour au menu principal\n"
                 + ":"
         );
-        retrieveUserInputForMenu();
+        retrieveUserInputForMenus();
 
     }
 
@@ -99,7 +100,7 @@ public class ContactApp {
                 + " 2 -> Retour au menu principal\n"
                 + ":"
         );
-        retrieveUserInputForMenu();
+        retrieveUserInputForMenus();
 
     }
 
@@ -126,7 +127,7 @@ public class ContactApp {
                 + " 2 -> Par ordre décroissant\n"
                 + ":"
         );
-        retrieveUserInputForMenu();
+        retrieveUserInputForMenus();
 
     }
 
@@ -138,19 +139,19 @@ public class ContactApp {
                 + " 4 -> Retour au menu principal\n"
                 + ":"
         );
-        retrieveUserInputForMenu();
+        retrieveUserInputForMenus();
 
     }
 
-    private void retrieveUserInputForMenu() {
+    protected void retrieveUserInputForMenus() {
 
-        String userChoiceStr = "";
+        userChoiceStr = "";
 
         do {
             if (!userChoiceStr.isEmpty())
                 System.out.println("Veuillez renseigner un chiffre :");
             userChoiceStr = sc.nextLine();
-        } while (!userChoiceStr.matches("\\d+"));
+        } while (!userChoiceStr.matches("\\d"));
 
         handleUserChoiceForMenus(Integer.parseInt(userChoiceStr));
 
@@ -196,47 +197,50 @@ public class ContactApp {
                     currentMenu = MAINMENU;
                 break;
 
+            default:
+                System.out.println("Veuillez renseigner un chiffre entre 1 et 4 !");
+                break;
         }
 
     }
 
     private void retrieveNewContactInfos() {
 
-        String lastname = "";
-        String firstname = "";
-        String phoneNumber = "";
+        lastnameFromUser = "";
+        firstnameFromUser = "";
+        phoneNumberFromUser = "";
 
         do {
 
-            if (!lastname.isEmpty())
+            if (!lastnameFromUser.isEmpty())
                 System.out.println("Veuillez saisir uniquement des lettres ! Réessayez");
 
             System.out.println("Entrez son nom :");
-            lastname = sc.nextLine();
+            lastnameFromUser = sc.nextLine();
 
-        } while (!lastname.trim().matches("[a-zA-Z]+"));
+        } while (!lastnameFromUser.trim().matches("[a-zA-Z]+"));
 
         do {
 
-            if (!firstname.isEmpty())
+            if (!firstnameFromUser.isEmpty())
                 System.out.println("Veuillez saisir uniquement des lettres ! Réessayez");
 
             System.out.println("Entrez son prénom :");
-            firstname = sc.nextLine();
+            firstnameFromUser = sc.nextLine();
 
-        } while (!firstname.trim().matches("[a-zA-Z]+"));
+        } while (!firstnameFromUser.trim().matches("[a-zA-Z]+"));
 
         do {
 
-            if (!phoneNumber.isEmpty())
-                System.out.println("Veuillez saisir uniquement des numéros ! Réessayez");
+            if (!phoneNumberFromUser.isEmpty())
+                System.out.println("Veuillez saisir uniquement des numéros et au maximum 10 ! Réessayez");
 
             System.out.println("Entrez son numéro de téléphone :");
-            phoneNumber = sc.nextLine();
+            phoneNumberFromUser = sc.nextLine();
 
-        } while (!phoneNumber.trim().matches("[0-9]+"));
+        } while (!phoneNumberFromUser.trim().matches("\\d{10}"));
 
-        createNewContactAndAddToList(lastname, firstname, phoneNumber);
+        createNewContactAndAddToList(lastnameFromUser, firstnameFromUser, phoneNumberFromUser);
 
     }
 
