@@ -38,6 +38,7 @@ public class ContactApp {
             displayMainMenu();
         while (isRunning);
 
+        sc.close();
         System.exit(0);
 
     }
